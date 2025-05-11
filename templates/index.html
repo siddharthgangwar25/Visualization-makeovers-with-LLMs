@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    /* Reset default margins/padding and full height */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    /* Overall page background and font */
+    body {
+      background-color: #f0f0f0;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Title container */
+    .title-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .title-box {
+      width: 80%;
+      background-color: #fff;
+      padding: 20px;
+      text-align: center;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .title-box h1 {
+      margin: 0;
+      font-size: 1.8em;
+      color: #444;
+    }
+
+    /* Container: two columns side by side */
+    .container {
+      display: flex;
+      flex-direction: row;
+      height: calc(100vh - 140px); /* Adjust height to account for title box and margins */
+      gap: 20px;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    /* Left and right panels styling */
+    .left-panel,
+    .right-panel {
+      flex: 1;
+      background-color: #fff;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Form styling (remains unchanged when shown) */
+    form {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    label {
+      font-size: 1.3em;
+      color: #444;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    /* Dropzone styling */
+    .dropzone {
+      border: 2px dashed #ccc;
+      padding: 50px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 20px;
+      box-sizing: border-box;
+      border-radius: 8px;
+      transition: background-color 0.3s;
+    }
+
+    .dropzone.dragover {
+      background-color: #e8f4ff;
+      border-color: #0066cc;
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    .code-textarea {
+      flex: 1;
+      resize: none;
+      margin-bottom: 20px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background-color: #fafafa;
+      font-family: monospace;
+      box-sizing: border-box;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      padding: 10px;
+      background-color: #0066cc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #005bb5;
+    }
+
+    #clearButton {
+      background-color: #ff6666;
+    }
+
+    #clearButton:hover {
+      background-color: #e60000;
+    }
+
+    /* Right panel content */
+    .right-panel-content {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    #result {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: #e9ffe9;
+      border: 1px solid #afafaf;
+      border-radius: 5px;
+      padding: 10px;
+      overflow: auto;
+      box-sizing: border-box;
+    }
+
+    #result textarea {
+      flex: 1;
+      width: 100%;
+      resize: none;
+      box-sizing: border-box;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      background-color: #fff;
+      padding: 10px;
+      font-family: sans-serif;
+    }
+
+    #result h2 {
+      margin: 0 0 10px 0;
+      color: #2c662d;
+      font-size: 1.2em;
+    }
+
+    p[style*="color: red;"] {
+      color: #d8000c !important;
+      background-color: #ffbaba;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+
+    /* Styling for image display on left panel */
+    .image-display {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .image-display img {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <!-- Title Box -->
+  <div class="title-container">
+    <div class="title-box">
+      <h1>Visualization Makeover Using LLMs</h1>
+    </div>
+  </div>
+  
+  <div class="container">
+    <!-- Left Column -->
+    <div class="left-panel">
+      {% if uploaded_image_url %}
+        <!-- Display the uploaded image when an image was provided -->
+        <div class="image-display">
+          <img src="{{ uploaded_image_url }}" alt="Uploaded Graph" />
+        </div>
+      {% else %}
+        <!-- Display the input form when no image is provided -->
+        <form action="/" method="POST" enctype="multipart/form-data" id="uploadForm">
+          <label for="image">Upload Plot:</label>
+          <div class="dropzone" id="dropzone">Drop Here</div>
+          <input type="file" name="image" accept="image/*" id="fileInput" />
+          <label for="code">Enter Code:</label>
+          <textarea name="code" placeholder="Enter your code" class="code-textarea"></textarea>
+          <div class="buttons">
+            <button type="submit">Submit</button>
+            <button type="button" id="clearButton">Clear</button>
+          </div>
+        </form>
+      {% endif %}
+    </div>
+
+    <!-- Right Column (Response) -->
+    <div class="right-panel">
+      <div class="right-panel-content">
+        {% if response_text %}
+          <div id="result">
+            <h2>Response:</h2>
+            <textarea readonly>{{ response_text }}</textarea>
+          </div>
+        {% endif %}
+        {% if error_message %}
+          <p style="color: red;">{{ error_message }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Drag-and-drop image upload logic
+    const dropzone = document.getElementById("dropzone");
+    const fileInput = document.getElementById("fileInput");
+
+    dropzone.addEventListener("dragover", function(e) {
+      e.preventDefault();
+      dropzone.classList.add("dragover");
+    });
+
+    dropzone.addEventListener("dragleave", function() {
+      dropzone.classList.remove("dragover");
+    });
+
+    dropzone.addEventListener("drop", function(e) {
+      e.preventDefault();
+      dropzone.classList.remove("dragover");
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        fileInput.files = files;
+        dropzone.textContent = files[0].name;
+      }
+    });
+
+    dropzone.addEventListener("click", function() {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener("change", function() {
+      if (fileInput.files.length > 0) {
+        dropzone.textContent = fileInput.files[0].name;
+      }
+    });
+
+    // Clear form logic
+    const clearButton = document.getElementById("clearButton");
+    clearButton.addEventListener("click", function() {
+      document.getElementById("uploadForm").reset();
+      dropzone.textContent = "Drop Here";
+      const resultDiv = document.getElementById("result");
+      if (resultDiv) {
+        resultDiv.remove();
+      }
+    });
+  </script>
+</body>
+</html>
